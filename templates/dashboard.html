@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reen AI | By Delstaford</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400&family=Great+Vibes&display=swap" rel="stylesheet">
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Animation -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    
+    <style>
+        :root {
+            /* Romantic/Soft Theme */
+            --primary-color: #a18cd1;
+            --secondary-color: #fbc2eb;
+            --glass-bg: rgba(255, 255, 255, 0.90);
+            --text-color: #4a4a4a;
+        }
+
+        body {
+            /* Soft Pink/Purple Gradient */
+            background: linear-gradient(120deg, #a18cd1 0%, #fbc2eb 100%);
+            font-family: 'Lato', sans-serif;
+            min-height: 100vh;
+            color: var(--text-color);
+            background-size: cover;
+            background-attachment: fixed;
+        }
+
+        .title-font { font-family: 'Playfair Display', serif; }
+        .script-font { font-family: 'Great Vibes', cursive; color: #d63384; }
+
+        .glass-panel {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 25px;
+            border: 1px solid rgba(255,255,255,0.9);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+        }
+
+        /* Tabs Styling */
+        .nav-pills .nav-link {
+            color: #666;
+            border-radius: 30px;
+            padding: 10px 25px;
+            font-weight: 600;
+            margin: 0 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-pills .nav-link.active {
+            background: linear-gradient(135deg, #a18cd1, #9575cd);
+            color: white;
+            box-shadow: 0 4px 15px rgba(161, 140, 209, 0.4);
+        }
+
+        /* Buttons */
+        .btn-reen {
+            background: #2d2d2d;
+            color: white;
+            border-radius: 30px;
+            padding: 12px 30px;
+            border: none;
+            transition: all 0.3s;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-reen:hover { 
+            transform: translateY(-2px); 
+            background: #d63384; /* Pink on hover */
+            box-shadow: 0 5px 15px rgba(214, 51, 132, 0.4); 
+            color: white;
+        }
+
+        /* Image Display Area */
+        .image-stage {
+            min-height: 400px;
+            background: #ffffff;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #e0e0e0;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .image-stage img { 
+            max-width: 100%; 
+            max-height: 400px;
+            border-radius: 10px; 
+            transition: 0.5s; 
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        /* Filter Chips */
+        .filter-chip {
+            cursor: pointer;
+            background: white;
+            padding: 10px 18px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            margin-right: 8px;
+            margin-bottom: 8px;
+            border: 1px solid #eee;
+            transition: 0.2s;
+            display: inline-block;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .filter-chip:hover { 
+            background: #d63384; 
+            color: white; 
+            border-color: transparent; 
+            transform: translateY(-2px);
+        }
+
+        /* Floating Hearts Animation Background */
+        .heart-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
+            overflow: hidden;
+        }
+        .heart-bg span {
+            position: absolute;
+            display: block;
+            width: 20px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.5);
+            animation: animate 25s linear infinite;
+            bottom: -150px;
+            clip-path: path("M10,30 A20,20,0,0,1,50,30 A20,20,0,0,1,90,30 Q90,60,50,90 Q10,60,10,30 Z");
+        }
+        @keyframes animate {
+            0%{ transform: translateY(0) rotate(0deg); opacity: 1; border-radius: 0; }
+            100%{ transform: translateY(-1000px) rotate(720deg); opacity: 0; border-radius: 50%; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Animated Background -->
+<div class="heart-bg">
+    <span style="left: 25%; width: 80px; height: 80px; animation-delay: 0s;"></span>
+    <span style="left: 10%; width: 20px; height: 20px; animation-delay: 2s; background: rgba(255, 192, 203, 0.6);"></span>
+    <span style="left: 70%; width: 20px; height: 20px; animation-delay: 4s;"></span>
+    <span style="left: 40%; width: 60px; height: 60px; animation-delay: 0s; background: rgba(255, 192, 203, 0.6);"></span>
+    <span style="left: 65%; width: 20px; height: 20px; animation-delay: 0s;"></span>
+    <span style="left: 75%; width: 110px; height: 110px; animation-delay: 3s;"></span>
+</div>
+
+<div class="container py-5">
+    <!-- Romantic Header -->
+    <div class="text-center mb-5 animate__animated animate__fadeInDown">
+        <h1 class="display-3 title-font fw-bold text-white">
+            <i class="fa-solid fa-heart text-danger animate__animated animate__heartBeat animate__infinite infinite me-2"></i> Reen AI
+        </h1>
+        <p class="lead text-white fs-5" style="text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Your Personal Biochemistry & Creative Studio</p>
+        
+        <!-- The Message -->
+        <div class="mt-3">
+            <span class="badge bg-white text-danger shadow-sm px-4 py-2 rounded-pill fs-6 animate__animated animate__pulse animate__infinite animate__slower">
+                ❤️ Delstaford Loves You Much ❤️
+            </span>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            <div class="glass-panel p-4 p-md-5">
+                
+                <!-- Navigation -->
+                <ul class="nav nav-pills mb-5 justify-content-center" id="pills-tab" role="tablist">
+                    <li class="nav-item">
+                        <button class="nav-link active" id="pills-biochem-tab" data-bs-toggle="pill" data-bs-target="#pills-biochem" type="button">
+                            <i class="fa-solid fa-flask me-2"></i>Biochemistry
+                        </button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link" id="pills-creative-tab" data-bs-toggle="pill" data-bs-target="#pills-creative" type="button">
+                            <i class="fa-solid fa-paintbrush me-2"></i>Image Studio
+                        </button>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="pills-tabContent">
+                    
+                    <!-- BIOCHEM MODULE -->
+                    <div class="tab-pane fade show active" id="pills-biochem">
+                        <div class="row align-items-center g-5">
+                            <div class="col-md-6">
+                                <h2 class="title-font mb-3 text-dark">Study Companion 🧬</h2>
+                                <p class="text-muted mb-4">Type any chemical (e.g., Aspirin) or biological term (e.g., Red Blood Cell). Reen AI will analyze it for you.</p>
+                                
+                                <div class="form-floating mb-4">
+                                    <input type="text" class="form-control rounded-4 bg-light border-0" id="smilesInput" placeholder="Name or SMILES" value="Aspirin">
+                                    <label for="smilesInput">Enter Chemical or Biological Name</label>
+                                </div>
+                                <button onclick="analyzeMolecule()" class="btn btn-reen w-100 shadow-lg">
+                                    <i class="fa-solid fa-microscope me-2"></i>Analyze
+                                </button>
+                                
+                                <div class="mt-4">
+                                    <p class="small text-muted mb-2 text-uppercase fw-bold">Quick Taps:</p>
+                                    <span class="badge bg-light text-dark border cursor-pointer p-2 me-2" onclick="fillSmiles('Red Blood Cell')">🩸 Red Blood Cell</span> 
+                                    <span class="badge bg-light text-dark border cursor-pointer p-2 me-2" onclick="fillSmiles('Caffeine')">☕ Caffeine</span>
+                                    <span class="badge bg-light text-dark border cursor-pointer p-2" onclick="fillSmiles('Insulin')">💉 Insulin</span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 text-center">
+                                <div id="chemResult" class="d-none animate__animated animate__fadeIn">
+                                    <div class="bg-white p-4 rounded-4 shadow-sm border">
+                                        <!-- Image Display -->
+                                        <div class="d-flex justify-content-center mb-3">
+                                            <img id="molImage" src="" class="img-fluid rounded" style="max-height: 250px;">
+                                        </div>
+                                        
+                                        <!-- Info -->
+                                        <h3 class="title-font text-primary mb-1" id="molName"></h3>
+                                        <p class="text-secondary fw-bold mb-2" id="molClass"></p>
+                                        
+                                        <!-- If it's a description (Biology) -->
+                                        <p id="molDesc" class="text-muted small fst-italic px-3"></p>
+                                        
+                                        <!-- Confidence Bar (Only for Chemistry) -->
+                                        <div id="confWrapper" class="d-flex align-items-center justify-content-center mt-3">
+                                            <span class="small me-2 fw-bold text-muted">AI Confidence:</span>
+                                            <div class="progress flex-grow-1" style="height: 8px; max-width: 100px;">
+                                                <div id="molConf" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Empty State -->
+                                <div id="chemEmpty" class="text-muted opacity-50 py-5">
+                                    <i class="fa-solid fa-heart-pulse fa-4x mb-3 text-danger opacity-50"></i>
+                                    <p>Ready to help you study, Reen!</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CREATIVE MODULE -->
+                    <div class="tab-pane fade" id="pills-creative">
+                        <div class="row g-5">
+                            <div class="col-md-5">
+                                <h2 class="title-font mb-3 text-dark">Art Generator 🎨</h2>
+                                <p class="text-muted mb-4">Create beautiful imagery. Just describe it, and let the AI paint it for you.</p>
+                                
+                                <div class="mb-3">
+                                    <textarea class="form-control rounded-4 p-3 border-0 bg-light shadow-inner" id="imgPrompt" rows="4" placeholder="e.g. 'A cute biochemist working in a magical garden with glowing DNA flowers'"></textarea>
+                                </div>
+                                <button onclick="generateImage()" id="genBtn" class="btn btn-reen w-100 mb-5 shadow-lg">
+                                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generate Magic
+                                </button>
+
+                                <div id="editorTools" class="d-none animate__animated animate__fadeInUp">
+                                    <h5 class="title-font mb-3 border-bottom pb-2">Cloudinary Editor</h5>
+                                    <div class="d-flex flex-wrap">
+                                        <div class="filter-chip" onclick="applyEffect('love')">❤️ Love You</div>
+                                        <div class="filter-chip" onclick="applyEffect('biochem_art')">🧬 Sci-Art</div>
+                                        <div class="filter-chip" onclick="applyEffect('glam')">✨ Sparkle</div>
+                                        <div class="filter-chip" onclick="applyEffect('sketch')">✏️ Sketch</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-7">
+                                <div class="image-stage shadow-sm" id="imgStage">
+                                    <div class="spinner-container">
+                                        <i class="fa-regular fa-images fa-3x mb-3 opacity-50"></i>
+                                        <span>Your Art Canvas</span>
+                                    </div>
+                                </div>
+                                <div class="text-end mt-2">
+                                    <small class="text-muted fst-italic">Made with ❤️ using Python</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="text-center py-4 mt-5 text-white opacity-75">
+    <small>To Reen, my favorite scientist. Love, Delstaford. 💏</small>
+</footer>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    let currentPublicId = null;
+
+    function fillSmiles(s) {
+        document.getElementById('smilesInput').value = s;
+    }
+
+    // --- BIOCHEM LOGIC ---
+    async function analyzeMolecule() {
+        const inputVal = document.getElementById('smilesInput').value;
+        const resultDiv = document.getElementById('chemResult');
+        const emptyDiv = document.getElementById('chemEmpty');
+        
+        // UI Loading State
+        emptyDiv.classList.add('d-none');
+        resultDiv.classList.add('d-none');
+        
+        try {
+            const res = await fetch('/analyze_chem', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({smiles: inputVal})
+            });
+            const data = await res.json();
+            
+            if(data.error) {
+                alert(data.error); 
+                emptyDiv.classList.remove('d-none');
+                return;
+            }
+
+            // Show Results
+            resultDiv.classList.remove('d-none');
+            document.getElementById('molImage').src = data.image_url;
+            
+            // Logic to display Name if available (from new main.py), else SMILES
+            const displayName = data.input_name || "Molecule";
+            document.getElementById('molName').innerText = displayName;
+            document.getElementById('molClass').innerText = data.classification;
+            
+            // Handle Biological Description vs Chemical Confidence
+            if(data.classification.includes("Biological")) {
+                document.getElementById('confWrapper').classList.add('d-none');
+                document.getElementById('molDesc').innerText = data.smiles; // Description is stored in 'smiles' field for Bio
+                document.getElementById('molDesc').classList.remove('d-none');
+            } else {
+                document.getElementById('confWrapper').classList.remove('d-none');
+                document.getElementById('molDesc').classList.add('d-none');
+                document.getElementById('molConf').style.width = data.confidence + '%';
+            }
+            
+        } catch (e) {
+            console.error(e);
+            alert("Error connecting to server.");
+            emptyDiv.classList.remove('d-none');
+        }
+    }
+
+    // --- CREATIVE LOGIC ---
+    async function generateImage() {
+        const prompt = document.getElementById('imgPrompt').value;
+        const btn = document.getElementById('genBtn');
+        const stage = document.getElementById('imgStage');
+        
+        if(!prompt) return alert("Please write a prompt first, my love!");
+
+        // Loading UI
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Dreaming...';
+        stage.innerHTML = `
+            <div class="spinner-container">
+                <div class="spinner-grow text-danger mb-3" style="width: 3rem; height: 3rem;"></div>
+                <p>Creating something special...</p>
+            </div>`;
+
+        try {
+            const res = await fetch('/generate_image', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({prompt: prompt})
+            });
+            const data = await res.json();
+
+            if(data.success) {
+                currentPublicId = data.public_id;
+                stage.innerHTML = `<img src="${data.cloudinary_url}" id="artCanvas" class="animate__animated animate__fadeIn">`;
+                document.getElementById('editorTools').classList.remove('d-none');
+            } else {
+                stage.innerHTML = `<div class="text-danger text-center p-4"><i class="fa-solid fa-triangle-exclamation mb-2"></i><br>${data.error || 'Generation failed.'}</div>`;
+            }
+        } catch(e) {
+            console.error(e);
+            stage.innerHTML = '<div class="text-danger p-4">Server connection failed.</div>';
+        }
+        
+        // Reset Button
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generate Magic';
+    }
+
+    async function applyEffect(effect) {
+        if(!currentPublicId) return;
+        
+        const stage = document.getElementById('imgStage');
+        const img = document.getElementById('artCanvas');
+        
+        if(img) img.style.opacity = '0.5';
+
+        try {
+            const res = await fetch('/transform_image', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({public_id: currentPublicId, effect: effect})
+            });
+            const data = await res.json();
+            
+            stage.innerHTML = `<img src="${data.new_url}" id="artCanvas" class="animate__animated animate__heartBeat">`;
+        } catch(e) {
+            console.error(e);
+            alert("Failed to apply filter");
+            if(img) img.style.opacity = '1';
+        }
+    }
+</script>
+
+</body>
+</html>

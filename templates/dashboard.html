@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reen AI | By Delstaford</title>
-    <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lato:wght@300;400&family=Great+Vibes&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <!-- Animation -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     
     <style>
@@ -78,8 +74,23 @@
             box-shadow: 0 5px 15px rgba(214, 51, 132, 0.4); 
             color: white;
         }
+        
+        .btn-outline-reen {
+            border: 2px solid #2d2d2d;
+            color: #2d2d2d;
+            border-radius: 30px;
+            padding: 12px 30px;
+            font-weight: 600;
+            background: transparent;
+            transition: all 0.3s;
+        }
+        
+        .btn-outline-reen:hover {
+            background: #2d2d2d;
+            color: white;
+        }
 
-        /* Image Display Area */
+        /* Image/Video Display Area */
         .image-stage {
             min-height: 400px;
             background: #ffffff;
@@ -93,9 +104,8 @@
             transition: all 0.3s;
         }
         
-        .image-stage img { 
+        .image-stage img, .image-stage iframe { 
             max-width: 100%; 
-            max-height: 400px;
             border-radius: 10px; 
             transition: 0.5s; 
             box-shadow: 0 5px 20px rgba(0,0,0,0.1);
@@ -151,7 +161,6 @@
 </head>
 <body>
 
-<!-- Animated Background -->
 <div class="heart-bg">
     <span style="left: 25%; width: 80px; height: 80px; animation-delay: 0s;"></span>
     <span style="left: 10%; width: 20px; height: 20px; animation-delay: 2s; background: rgba(255, 192, 203, 0.6);"></span>
@@ -162,14 +171,12 @@
 </div>
 
 <div class="container py-5">
-    <!-- Romantic Header -->
     <div class="text-center mb-5 animate__animated animate__fadeInDown">
         <h1 class="display-3 title-font fw-bold text-white">
             <i class="fa-solid fa-heart text-danger animate__animated animate__heartBeat animate__infinite infinite me-2"></i> Reen AI
         </h1>
         <p class="lead text-white fs-5" style="text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Your Personal Biochemistry & Creative Studio</p>
         
-        <!-- The Message -->
         <div class="mt-3">
             <span class="badge bg-white text-danger shadow-sm px-4 py-2 rounded-pill fs-6 animate__animated animate__pulse animate__infinite animate__slower">
                 ❤️ Delstaford Loves You Much ❤️
@@ -181,7 +188,6 @@
         <div class="col-lg-11">
             <div class="glass-panel p-4 p-md-5">
                 
-                <!-- Navigation -->
                 <ul class="nav nav-pills mb-5 justify-content-center" id="pills-tab" role="tablist">
                     <li class="nav-item">
                         <button class="nav-link active" id="pills-biochem-tab" data-bs-toggle="pill" data-bs-target="#pills-biochem" type="button">
@@ -190,14 +196,13 @@
                     </li>
                     <li class="nav-item">
                         <button class="nav-link" id="pills-creative-tab" data-bs-toggle="pill" data-bs-target="#pills-creative" type="button">
-                            <i class="fa-solid fa-paintbrush me-2"></i>Image Studio
+                            <i class="fa-solid fa-paintbrush me-2"></i>Image & Video Studio
                         </button>
                     </li>
                 </ul>
 
                 <div class="tab-content" id="pills-tabContent">
                     
-                    <!-- BIOCHEM MODULE -->
                     <div class="tab-pane fade show active" id="pills-biochem">
                         <div class="row align-items-center g-5">
                             <div class="col-md-6">
@@ -223,19 +228,18 @@
                             <div class="col-md-6 text-center">
                                 <div id="chemResult" class="d-none animate__animated animate__fadeIn">
                                     <div class="bg-white p-4 rounded-4 shadow-sm border">
-                                        <!-- Image Display -->
                                         <div class="d-flex justify-content-center mb-3">
                                             <img id="molImage" src="" class="img-fluid rounded" style="max-height: 250px;">
                                         </div>
                                         
-                                        <!-- Info -->
+                                        <div id="bioVideoContainer" class="d-none mb-3">
+                                            </div>
+                                        
                                         <h3 class="title-font text-primary mb-1" id="molName"></h3>
                                         <p class="text-secondary fw-bold mb-2" id="molClass"></p>
                                         
-                                        <!-- If it's a description (Biology) -->
                                         <p id="molDesc" class="text-muted small fst-italic px-3"></p>
                                         
-                                        <!-- Confidence Bar (Only for Chemistry) -->
                                         <div id="confWrapper" class="d-flex align-items-center justify-content-center mt-3">
                                             <span class="small me-2 fw-bold text-muted">AI Confidence:</span>
                                             <div class="progress flex-grow-1" style="height: 8px; max-width: 100px;">
@@ -245,7 +249,6 @@
                                     </div>
                                 </div>
                                 
-                                <!-- Empty State -->
                                 <div id="chemEmpty" class="text-muted opacity-50 py-5">
                                     <i class="fa-solid fa-heart-pulse fa-4x mb-3 text-danger opacity-50"></i>
                                     <p>Ready to help you study, Reen!</p>
@@ -254,19 +257,24 @@
                         </div>
                     </div>
 
-                    <!-- CREATIVE MODULE -->
                     <div class="tab-pane fade" id="pills-creative">
                         <div class="row g-5">
                             <div class="col-md-5">
-                                <h2 class="title-font mb-3 text-dark">Art Generator 🎨</h2>
-                                <p class="text-muted mb-4">Create beautiful imagery. Just describe it, and let the AI paint it for you.</p>
+                                <h2 class="title-font mb-3 text-dark">Art Studio 🎨</h2>
+                                <p class="text-muted mb-4">Create beautiful imagery or 3D videos. Just describe it, and let the AI paint it for you.</p>
                                 
                                 <div class="mb-3">
                                     <textarea class="form-control rounded-4 p-3 border-0 bg-light shadow-inner" id="imgPrompt" rows="4" placeholder="e.g. 'A cute biochemist working in a magical garden with glowing DNA flowers'"></textarea>
                                 </div>
-                                <button onclick="generateImage()" id="genBtn" class="btn btn-reen w-100 mb-5 shadow-lg">
-                                    <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generate Magic
-                                </button>
+                                
+                                <div class="d-flex gap-2 mb-4">
+                                    <button onclick="generateImage()" id="genBtn" class="btn btn-reen flex-grow-1 shadow-lg">
+                                        <i class="fa-solid fa-wand-magic-sparkles me-2"></i>Paint Image
+                                    </button>
+                                    <button onclick="generateVideo()" id="genVidBtn" class="btn btn-outline-reen flex-grow-1 shadow-lg">
+                                        <i class="fa-solid fa-video me-2"></i>Make Video
+                                    </button>
+                                </div>
 
                                 <div id="editorTools" class="d-none animate__animated animate__fadeInUp">
                                     <h5 class="title-font mb-3 border-bottom pb-2">Cloudinary Editor</h5>
@@ -281,9 +289,9 @@
 
                             <div class="col-md-7">
                                 <div class="image-stage shadow-sm" id="imgStage">
-                                    <div class="spinner-container">
+                                    <div class="spinner-container text-center">
                                         <i class="fa-regular fa-images fa-3x mb-3 opacity-50"></i>
-                                        <span>Your Art Canvas</span>
+                                        <p class="d-block">Your Art Canvas</p>
                                     </div>
                                 </div>
                                 <div class="text-end mt-2">
@@ -303,7 +311,6 @@
     <small>To Reen, my favorite scientist. Love, Delstaford. 💏</small>
 </footer>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
@@ -313,11 +320,12 @@
         document.getElementById('smilesInput').value = s;
     }
 
-    // --- BIOCHEM LOGIC ---
+    // --- BIOCHEM LOGIC (UPDATED FOR YOUTUBE) ---
     async function analyzeMolecule() {
         const inputVal = document.getElementById('smilesInput').value;
         const resultDiv = document.getElementById('chemResult');
         const emptyDiv = document.getElementById('chemEmpty');
+        const videoContainer = document.getElementById('bioVideoContainer');
         
         // UI Loading State
         emptyDiv.classList.add('d-none');
@@ -340,15 +348,26 @@
             resultDiv.classList.remove('d-none');
             document.getElementById('molImage').src = data.image_url;
             
-            // Logic to display Name if available (from new main.py), else SMILES
             const displayName = data.input_name || "Molecule";
             document.getElementById('molName').innerText = displayName;
             document.getElementById('molClass').innerText = data.classification;
             
-            // Handle Biological Description vs Chemical Confidence
+            // Handle Biological Video (Now using Iframe)
+            if(data.video_url) {
+                videoContainer.classList.remove('d-none');
+                videoContainer.innerHTML = `
+                    <p class="small text-muted fw-bold text-start mb-1"><i class="fa-brands fa-youtube text-danger me-1"></i>Related Video:</p>
+                    <div style="width: 100%; height: 250px; background: black; border-radius: 10px; overflow: hidden;">
+                        <iframe width="100%" height="100%" src="${data.video_url}" title="YouTube video player" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>`;
+            } else {
+                videoContainer.classList.add('d-none');
+                videoContainer.innerHTML = "";
+            }
+
             if(data.classification.includes("Biological")) {
                 document.getElementById('confWrapper').classList.add('d-none');
-                document.getElementById('molDesc').innerText = data.smiles; // Description is stored in 'smiles' field for Bio
+                document.getElementById('molDesc').innerText = data.smiles; 
                 document.getElementById('molDesc').classList.remove('d-none');
             } else {
                 document.getElementById('confWrapper').classList.remove('d-none');
@@ -363,7 +382,7 @@
         }
     }
 
-    // --- CREATIVE LOGIC ---
+    // --- CREATIVE LOGIC (IMAGES) ---
     async function generateImage() {
         const prompt = document.getElementById('imgPrompt').value;
         const btn = document.getElementById('genBtn');
@@ -371,11 +390,10 @@
         
         if(!prompt) return alert("Please write a prompt first, my love!");
 
-        // Loading UI
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Dreaming...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Painting...';
         stage.innerHTML = `
-            <div class="spinner-container">
+            <div class="spinner-container text-center">
                 <div class="spinner-grow text-danger mb-3" style="width: 3rem; height: 3rem;"></div>
                 <p>Creating something special...</p>
             </div>`;
@@ -399,17 +417,65 @@
             stage.innerHTML = '<div class="text-danger p-4">Server connection failed.</div>';
         }
         
-        // Reset Button
         btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles me-2"></i>Generate Magic';
+        btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles me-2"></i>Paint Image';
+    }
+
+    // --- CREATIVE LOGIC (VIDEOS - UPDATED) ---
+    async function generateVideo() {
+        const prompt = document.getElementById('imgPrompt').value;
+        const btn = document.getElementById('genVidBtn');
+        const stage = document.getElementById('imgStage');
+        
+        if(!prompt) return alert("Please write a prompt for the video!");
+
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Searching...';
+        stage.innerHTML = `
+            <div class="spinner-container text-center" style="padding: 50px;">
+                <div class="spinner-grow text-primary mb-3" style="width: 3rem; height: 3rem;"></div>
+                <p>Finding the best video for you...</p>
+            </div>`;
+
+        try {
+            const res = await fetch('/generate_video', {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({prompt: prompt})
+            });
+            const data = await res.json();
+
+            if(data.success) {
+                document.getElementById('editorTools').classList.add('d-none');
+                
+                // FORCE HEIGHT (Fixes black screen)
+                stage.innerHTML = `
+                    <div style="width: 100%; height: 450px; background: black; border-radius: 10px; overflow: hidden;">
+                        <iframe 
+                            width="100%" 
+                            height="100%" 
+                            src="${data.video_url}" 
+                            title="YouTube video player" 
+                            frameborder="0" 
+                            allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                            allowfullscreen>
+                        </iframe>
+                    </div>`;
+            } else {
+                stage.innerHTML = `<div class="text-danger text-center p-4">${data.error}</div>`;
+            }
+        } catch(e) {
+            console.error(e);
+            stage.innerHTML = '<div class="text-danger p-4">Server connection failed.</div>';
+        }
+        
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-video me-2"></i>Make Video';
     }
 
     async function applyEffect(effect) {
         if(!currentPublicId) return;
-        
         const stage = document.getElementById('imgStage');
         const img = document.getElementById('artCanvas');
-        
         if(img) img.style.opacity = '0.5';
 
         try {
@@ -418,7 +484,6 @@
                 body: JSON.stringify({public_id: currentPublicId, effect: effect})
             });
             const data = await res.json();
-            
             stage.innerHTML = `<img src="${data.new_url}" id="artCanvas" class="animate__animated animate__heartBeat">`;
         } catch(e) {
             console.error(e);

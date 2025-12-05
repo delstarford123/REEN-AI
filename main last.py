@@ -1,357 +1,180 @@
 import os
-
 import sys
-
 import requests
-
 from flask import Flask, render_template, request, jsonify
-
 from dotenv import load_dotenv
-
-from youtube_search import YoutubeSearch
-
-
+from youtubesearchpython import VideosSearch  # NEW IMPORT
 
 # --- IMPORTS FOR CLOUDINARY ---
-
 import cloudinary
-
 import cloudinary.uploader
-
 import cloudinary.api
-
 from cloudinary.utils import cloudinary_url
 
-
-
 # --- 1. SETUP PATHS & SECRETS ---
-
 load_dotenv()
 
-
-
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
 script_path = os.path.join(current_dir, 'reen', 'script')
-
 sys.path.append(script_path)
 
-
-
 try:
-
     from predict import predict_molecule
-
 except ImportError:
-
     print("⚠️ Warning: predict.py not found.")
-
     def predict_molecule(s): return {"error": "Prediction script not found"}
-
-
 
 app = Flask(__name__)
 
-
-
 # --- 2. CONFIGURATION ---
-
 cloudinary.config( 
-
     cloud_name = os.getenv("CLOUDINARY_CLOUD_NAME"), 
-
     api_key = os.getenv("CLOUDINARY_API_KEY"), 
-
     api_secret = os.getenv("CLOUDINARY_API_SECRET"),
-
     secure = True
-
 )
-
-
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-
-
-# --- HELPER: FIND WORKING YOUTUBE VIDEO ---
-
-def get_embeddable_video(query):
-
-    """
-
-    Searches YouTube for 'query', checks top 5 results,
-
-    and returns the first one that allows embedding.
-
-    """
-
-    try:
-
-        print(f"🔍 Searching YouTube for: {query}")
-
-        results = YoutubeSearch(query, max_results=5).to_dict()
-
-        
-
-        for video in results:
-
-            video_id = video['id']
-
-            video_url = f"https://www.youtube.com/watch?v={video_id}"
-
-            
-
-            # CHECK IF EMBEDDABLE using oEmbed API
-
-            # This is a public YouTube check that tells us if a video can be played on other sites.
-
-            oembed_url = f"https://www.youtube.com/oembed?url={video_url}&format=json"
-
-            check = requests.get(oembed_url)
-
-            
-
-            if check.status_code == 200:
-
-                print(f"✅ Found working video: {video['title']}")
-
-                # Return the Embed URL
-
-                return f"https://www.youtube.com/embed/{video_id}?autoplay=1&mute=1&rel=0"
-
-            else:
-
-                print(f"⚠️ Video not embeddable: {video['title']} (Skipping)")
-
-                
-
-    except Exception as e:
-
-        print(f"❌ Search Error: {e}")
-
-        
-
-    return None
-
-
-
 # --- ROUTES ---
 
-
-
 @app.route('/')
-
 def home():
-
     return render_template('dashboard.html')
 
-
-
 @app.route('/analyze_chem', methods=['POST'])
-
 def analyze_chem():
-
+    """
+    Intelligent Biochemistry Route:
+    1. Accepts Name (e.g., 'Aspirin') OR SMILES.
+    2. Converts Name -> SMILES using PubChem.
+    3. If Chemical: Runs ML Prediction + PubChem Image.
+    4. If Biological: Runs Gemini Description + AI Image + YOUTUBE VIDEO.
+    """
     data = request.get_json()
-
     user_input = data.get('smiles', '').strip()
-
     
-
     smiles = None
-
     canonical_name = user_input
-
     is_biological = False
 
-
-
-    # --- RESOLVE NAME ---
-
+    # --- STEP 1: RESOLVE NAME TO STRUCTURE ---
     try:
-
         pubchem_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{user_input}/property/CanonicalSMILES/JSON"
-
         req = requests.get(pubchem_url)
-
+        
         if req.status_code == 200:
-
             res_json = req.json()
-
             smiles = res_json['PropertyTable']['Properties'][0]['CanonicalSMILES']
-
             canonical_name = user_input.title()
-
         else:
-
             if any(char in user_input for char in ['=', '#', '@', '[', ']']):
-
                  smiles = user_input
-
             else:
-
                  is_biological = True
-
     except:
-
         is_biological = True
 
-
-
-    # --- CHEMICAL ---
-
+    # --- STEP 2: CHEMICAL ANALYSIS (Standard) ---
     if smiles and not is_biological:
-
         result = predict_molecule(smiles)
-
         mol_image_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{requests.utils.quote(smiles)}/PNG"
-
         result['image_url'] = mol_image_url
-
         result['input_name'] = canonical_name
-
         result['video_url'] = None 
-
         return jsonify(result)
 
-
-
-    # --- BIOLOGICAL ---
-
+    # --- STEP 3: BIOLOGICAL FALLBACK (YouTube Enabled) ---
     else:
-
         desc = "Biological Entity"
-
         if GEMINI_API_KEY:
-
             try:
-
                 gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
-
                 gem_payload = { "contents": [{ "parts": [{ "text": f"Define {user_input} in biochemistry in one short sentence." }] }] }
-
                 gem_res = requests.post(gem_url, json=gem_payload).json()
-
                 desc = gem_res['candidates'][0]['content']['parts'][0]['text']
-
             except:
-
                 desc = "Complex Biological Structure"
 
-
-
+        # 1. Generate Educational Image
         ai_image_url = f"https://image.pollinations.ai/prompt/microscopic {user_input} scientific diagram white background?width=500&height=500&nologo=true"
-
         
-
-        # FIND VIDEO (Using Helper)
-
-        youtube_embed = get_embeddable_video(f"{user_input} mechanism biochemistry animation 3D")
-
-
+        # 2. Find YouTube Video (NEW FIX)
+        youtube_embed = None
+        try:
+            # Search for educational animations
+            search_query = f"{user_input} mechanism biochemistry animation 3D"
+            videosSearch = VideosSearch(search_query, limit = 1)
+            results = videosSearch.result()
+            
+            if results['result']:
+                video_id = results['result'][0]['id']
+                # Create the Embed URL (Standard for iframes)
+                youtube_embed = f"https://www.youtube.com/embed/{video_id}"
+        except Exception as e:
+            print(f"YouTube Error: {e}")
 
         return jsonify({
-
             "classification": "Biological / Complex",
-
             "confidence": 100,
-
             "smiles": desc, 
-
             "image_url": ai_image_url,
-
-            "video_url": youtube_embed, 
-
+            "video_url": youtube_embed, # This is now a YouTube Embed URL
             "is_youtube": True
-
         })
 
-
-
 @app.route('/generate_image', methods=['POST'])
-
 def generate_image():
-
+    """Generates Art using Pollinations"""
     data = request.get_json()
-
     prompt = data.get('prompt')
-
+    
     ai_image_url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(prompt)}?width=1024&height=1024&nologo=true"
 
     try:
-
         response = requests.get(ai_image_url)
-
         if response.status_code == 200:
-
             upload_result = cloudinary.uploader.upload(response.content, folder="reen_gallery")
-
             return jsonify({
-
                 'success': True,
-
                 'cloudinary_url': upload_result['secure_url'],
-
                 'public_id': upload_result['public_id']
-
             })
-
         return jsonify({'error': "AI Generation timed out."}), 500
 
     except Exception as e:
-
         return jsonify({'error': str(e)}), 500
 
-
-
 @app.route('/generate_video', methods=['POST'])
-
 def generate_video():
-
-    """Video Studio: Searches YouTube for embeddable artistic videos."""
-
+    """Generates AI Video (Keeps this for the 'Art' tab if needed)"""
     data = request.get_json()
-
     prompt = data.get('prompt')
-
     if not prompt: return jsonify({'error': 'No prompt provided'}), 400
 
-
-
-    # Search for an embeddable video
-
-    # We add "4k cinematic" to find high quality visuals
-
-    video_url = get_embeddable_video(f"{prompt} 4k cinematic visual")
-
-    
-
-    if video_url:
-
-        return jsonify({'success': True, 'video_url': video_url})
-
-    else:
-
-        return jsonify({'error': 'No working video found. Try a different prompt.'}), 404
-
-
+    video_url = f"https://video.pollinations.ai/prompt/{requests.utils.quote(prompt)}"
+    return jsonify({'success': True, 'video_url': video_url})
 
 @app.route('/transform_image', methods=['POST'])
-
 def transform_image():
-
+    """Applies Cloudinary filters"""
     data = request.get_json()
-
     public_id = data.get('public_id')
+    effect = data.get('effect') 
 
-    new_url, _ = cloudinary_url(public_id, transformation=[{'effect': "cartoonify"}])
+    transformation = []
+    if effect == 'biochem_art':
+        transformation = [{'effect': "art:hokusai"}, {'border': "5px_solid_white"}]
+    elif effect == 'sketch':
+         transformation = [{'effect': "cartoonify"}, {'effect': "outline:100"}]
+    elif effect == 'glam':
+         transformation = [{'effect': "vignette:50"}, {'effect': "improve"}]
+    elif effect == 'love':
+         transformation = [{'effect': "vignette:30"}, {'overlay': "text:roboto_40_bold:For Reen", 'gravity': "south", 'y': 20, 'color': "pink"}]
 
+    new_url, _ = cloudinary_url(public_id, transformation=transformation)
     return jsonify({'new_url': new_url})
 
-
-
 if __name__ == '__main__':
-
     port = int(os.environ.get("PORT", 5000))
-
     app.run(host='0.0.0.0', port=port, debug=True)

@@ -8,8 +8,6 @@ from flask import Flask, render_template, request, jsonify
 
 from dotenv import load_dotenv
 
-from youtube_search import YoutubeSearch
-
 
 
 # --- IMPORTS FOR CLOUDINARY ---
@@ -74,68 +72,6 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
 
 
-# --- HELPER: FIND WORKING YOUTUBE VIDEO ---
-
-def get_embeddable_video(query):
-
-    """
-
-    Searches YouTube for 'query', checks top 5 results,
-
-    and returns the first one that allows embedding.
-
-    """
-
-    try:
-
-        print(f"🔍 Searching YouTube for: {query}")
-
-        results = YoutubeSearch(query, max_results=5).to_dict()
-
-        
-
-        for video in results:
-
-            video_id = video['id']
-
-            video_url = f"https://www.youtube.com/watch?v={video_id}"
-
-            
-
-            # CHECK IF EMBEDDABLE using oEmbed API
-
-            # This is a public YouTube check that tells us if a video can be played on other sites.
-
-            oembed_url = f"https://www.youtube.com/oembed?url={video_url}&format=json"
-
-            check = requests.get(oembed_url)
-
-            
-
-            if check.status_code == 200:
-
-                print(f"✅ Found working video: {video['title']}")
-
-                # Return the Embed URL
-
-                return f"https://www.youtube.com/embed/{video_id}?autoplay=1&mute=1&rel=0"
-
-            else:
-
-                print(f"⚠️ Video not embeddable: {video['title']} (Skipping)")
-
-                
-
-    except Exception as e:
-
-        print(f"❌ Search Error: {e}")
-
-        
-
-    return None
-
-
-
 # --- ROUTES ---
 
 
@@ -152,6 +88,20 @@ def home():
 
 def analyze_chem():
 
+    """
+
+    Intelligent Biochemistry Route:
+
+    1. Accepts Name (e.g., 'Aspirin') OR SMILES.
+
+    2. Converts Name -> SMILES using PubChem.
+
+    3. If Chemical: Runs ML Prediction + PubChem Image.
+
+    4. If Biological (e.g., 'Red Blood Cell'): Runs Gemini Description + AI Image.
+
+    """
+
     data = request.get_json()
 
     user_input = data.get('smiles', '').strip()
@@ -166,7 +116,9 @@ def analyze_chem():
 
 
 
-    # --- RESOLVE NAME ---
+    # --- STEP 1: RESOLVE NAME TO STRUCTURE ---
+
+    # Try PubChem API to turn "Aspirin" into SMILES
 
     try:
 
@@ -174,7 +126,11 @@ def analyze_chem():
 
         req = requests.get(pubchem_url)
 
+        
+
         if req.status_code == 200:
+
+            # It's a known chemical!
 
             res_json = req.json()
 
@@ -184,11 +140,17 @@ def analyze_chem():
 
         else:
 
+            # PubChem didn't find it. 
+
+            # Check if user actually typed a SMILES string (has special chars like =, #, @)
+
             if any(char in user_input for char in ['=', '#', '@', '[', ']']):
 
                  smiles = user_input
 
             else:
+
+                 # It's likely a biological term (e.g., "Red Blood Cells")
 
                  is_biological = True
 
@@ -198,11 +160,17 @@ def analyze_chem():
 
 
 
-    # --- CHEMICAL ---
+    # --- STEP 2: CHEMICAL ANALYSIS (If we found SMILES) ---
 
     if smiles and not is_biological:
 
+        # Run your Custom ML Model
+
         result = predict_molecule(smiles)
+
+        
+
+        # Get real chemical structure image
 
         mol_image_url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{requests.utils.quote(smiles)}/PNG"
 
@@ -210,21 +178,29 @@ def analyze_chem():
 
         result['input_name'] = canonical_name
 
-        result['video_url'] = None 
+        
 
         return jsonify(result)
 
 
 
-    # --- BIOLOGICAL ---
+    # --- STEP 3: BIOLOGICAL FALLBACK (The "Study Buddy" Mode) ---
 
     else:
+
+        # If it's "Red Blood Cells", our chemical model can't classify it.
+
+        # So we use Gemini to define it and Pollinations to show it.
+
+        
 
         desc = "Biological Entity"
 
         if GEMINI_API_KEY:
 
             try:
+
+                # Ask Gemini for a 1-sentence definition
 
                 gem_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={GEMINI_API_KEY}"
 
@@ -240,13 +216,9 @@ def analyze_chem():
 
 
 
+        # Generate an educational image using Pollinations
+
         ai_image_url = f"https://image.pollinations.ai/prompt/microscopic {user_input} scientific diagram white background?width=500&height=500&nologo=true"
-
-        
-
-        # FIND VIDEO (Using Helper)
-
-        youtube_embed = get_embeddable_video(f"{user_input} mechanism biochemistry animation 3D")
 
 
 
@@ -256,13 +228,9 @@ def analyze_chem():
 
             "confidence": 100,
 
-            "smiles": desc, 
+            "smiles": desc, # We use the SMILES field to show the description in the UI
 
-            "image_url": ai_image_url,
-
-            "video_url": youtube_embed, 
-
-            "is_youtube": True
+            "image_url": ai_image_url
 
         })
 
@@ -272,13 +240,27 @@ def analyze_chem():
 
 def generate_image():
 
+    """Generates Art using Pollinations (Reliable Fallback) -> Saves to Cloudinary"""
+
     data = request.get_json()
 
     prompt = data.get('prompt')
 
+    
+
+    print(f"🎨 Generating Art for: {prompt}")
+
+
+
+    # 1. Generate via Pollinations
+
     ai_image_url = f"https://image.pollinations.ai/prompt/{requests.utils.quote(prompt)}?width=1024&height=1024&nologo=true"
 
+
+
     try:
+
+        # 2. Download and Upload to Cloudinary
 
         response = requests.get(ai_image_url)
 
@@ -298,41 +280,11 @@ def generate_image():
 
         return jsonify({'error': "AI Generation timed out."}), 500
 
+
+
     except Exception as e:
 
         return jsonify({'error': str(e)}), 500
-
-
-
-@app.route('/generate_video', methods=['POST'])
-
-def generate_video():
-
-    """Video Studio: Searches YouTube for embeddable artistic videos."""
-
-    data = request.get_json()
-
-    prompt = data.get('prompt')
-
-    if not prompt: return jsonify({'error': 'No prompt provided'}), 400
-
-
-
-    # Search for an embeddable video
-
-    # We add "4k cinematic" to find high quality visuals
-
-    video_url = get_embeddable_video(f"{prompt} 4k cinematic visual")
-
-    
-
-    if video_url:
-
-        return jsonify({'success': True, 'video_url': video_url})
-
-    else:
-
-        return jsonify({'error': 'No working video found. Try a different prompt.'}), 404
 
 
 
@@ -340,11 +292,39 @@ def generate_video():
 
 def transform_image():
 
+    """Applies Cloudinary filters"""
+
     data = request.get_json()
 
     public_id = data.get('public_id')
 
-    new_url, _ = cloudinary_url(public_id, transformation=[{'effect': "cartoonify"}])
+    effect = data.get('effect') 
+
+
+
+    transformation = []
+
+    
+
+    if effect == 'biochem_art':
+
+        transformation = [{'effect': "art:hokusai"}, {'border': "5px_solid_white"}]
+
+    elif effect == 'sketch':
+
+         transformation = [{'effect': "cartoonify"}, {'effect': "outline:100"}]
+
+    elif effect == 'glam':
+
+         transformation = [{'effect': "vignette:50"}, {'effect': "improve"}]
+
+    elif effect == 'love':
+
+         transformation = [{'effect': "vignette:30"}, {'overlay': "text:roboto_40_bold:For Reen", 'gravity': "south", 'y': 20, 'color': "pink"}]
+
+
+
+    new_url, _ = cloudinary_url(public_id, transformation=transformation)
 
     return jsonify({'new_url': new_url})
 
@@ -352,6 +332,6 @@ def transform_image():
 
 if __name__ == '__main__':
 
-    port = int(os.environ.get("PORT", 5000))
+    print("🌸 Reen AI is starting on http://127.0.0.1:5000")
 
-    app.run(host='0.0.0.0', port=port, debug=True)
+    app.run(debug=True)

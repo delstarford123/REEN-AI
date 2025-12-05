@@ -1,0 +1,9 @@
+Flask
+pandas
+numpy
+scikit-learn
+rdkit
+python-dotenv
+joblib
+requests
+gunicorn
